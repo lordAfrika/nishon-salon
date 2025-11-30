@@ -1,0 +1,9 @@
+/.env
+/vendor/
+/node_modules/
+.DS_Store
+.idea/
+.vscode/
+/project_flow_registration.svg
+/project_flow_login_booking.svg
+/project_flow_admin.svg

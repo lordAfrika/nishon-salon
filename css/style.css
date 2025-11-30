@@ -1,0 +1,463 @@
+@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    --bg1: #151828;
+    --bg2: #1B1F34;
+    --body: #959DCC;
+    --brand: #FFAB76;
+    --white: #fff;
+}
+
+body{
+    background-color:var(--bg2);
+    font-family: "inter", 'segoe ui, tahoma, geneva, verdana, sans-sarif';
+    color: var(-body);
+    line-height:1.8 ;
+
+}
+ .link-icon img{
+    width:30px !important;
+
+}
+
+h1,h2,h3,h4,h5,h6{
+    font-family: "Inter", 'segoe UI', 
+    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: white !important;
+}
+a{
+    color: var(--body);
+    text-decoration: none;
+    transition: all 0.4s ease;
+    
+}
+small{
+    color:aliceblue;
+    align-items: center;
+    font-size: 16px;
+}
+a:hover{
+    color: var(--brand);
+}
+.link-more{
+    display:inline-flex;
+
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    left: 1px;
+     transition: all 0.4s ease !important;
+
+}
+
+.link-more:hover {
+    transform: translateX(8px)!important;
+    
+}
+
+#small{
+    font-size: 20px;
+    color: wheat !important;
+}
+
+p{
+    color: rgb(147, 192, 188)!important;
+    text-align: center !important;
+}
+.small{
+    color: whitesmoke !important;
+    font-style: normal;
+}
+img{
+    width: 100% !important;
+}
+section{
+    padding-top: 160px;
+    padding-bottom: 160px;
+}
+/*INTRO*/
+.intro{
+    margin-bottom:60px ;
+    text-align: center;
+}
+.intro p{
+    max-width: 500px;
+    margin: auto;
+    
+}
+.cta-btns {
+    margin-top: 60px;
+
+}
+
+.intro h1{
+    margin-top: 16px;
+    margin-bottom: 24px;
+}
+.intro h6{
+    color: var(--brand);
+}
+
+
+/*NAVBAR*/
+.navbar{
+background: linear-gradient(to bottom,#1B1F34, rgba(27, 31, 52, 0.2));
+}
+.navbar .navbar-nav .nav-link.active{
+    color: var(--brand);
+}
+.navbar-brand{
+    font-family: "Dela Gothic One", 'segoe UI', 
+    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    font-size: 32px;
+}
+/*HERO*/
+
+#hero{
+    background: linear-gradient(to right,#1B1F34, rgba(27, 31, 52, 0.0)), url(../img/cover_1.jpg) ;
+    background-size:cover ;
+    min-height: 100vh;
+    background-position: center;
+    display: flex;
+    align-items: center;
+
+}
+#hero p{
+    margin-top: 24px;
+    margin-bottom: 24px;
+}
+
+/*Buctton*/
+.btn{
+    padding: 16px 36px;
+    font-family: "Dela Gothic One", 'segoe UI', 
+    'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    transition: all 0.4s ease;
+}
+
+.btn-brand{
+    background-color:var(--brand) ;
+}
+.btn-brand:hover{
+    background-color: transparent;
+    color:var(--brand);
+    border-color: var(--brand);
+}
+
+.btn-outline-brand{
+      background-color: transparent;
+    color:var(--brand);
+    border-color: var(--brand);
+
+}
+.btn-outline-brand:hover{
+    background-color: var(--brand);
+}
+
+/*ABOUT*/
+
+#about {
+position:relative ;
+background-color: var(--bg1);
+}
+#about::after{
+    content: "";
+    width: 25%;
+    height: 100%;
+    background-color: var(--brand);
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+
+}
+
+#about h6{
+    color: var(--brand) !important;
+}
+#about h1{
+    margin-top: 16px !important;
+    margin-bottom: 24px !important;
+}
+#about .signature{
+    width:unset  !important;
+}
+/*SERVICES*/
+#services{
+    background: var(--bg1);
+
+}
+#services .service .content{
+    padding: 250px !important;
+    
+}
+
+#services .services p{
+    margin-top: 18px !important;
+    margin-bottom: 18px !important;
+}
+.content p{
+ border-right: 2px double var(--bg1) !important;
+}
+
+/*MILESTONE*/
+#milestone{
+      background: linear-gradient(to right,rgba(27, 31, 52, 0.8), rgba(27, 31, 52, 0.8)), url(../img/cover_2.jpg) ;
+    background-size:cover ;
+    background-position: center;
+  
+}
+#milestone h1{
+    color: var(--brand);
+}
+/*FEATURE*/
+#features{
+    background-color: var(--bg1);
+}
+.feature{
+    display:flex !important;
+  
+}
+.feature p{
+  max-width: 150px!important;
+ border-right: 2px double var(--bg1) !important;
+ border-left: 2px double var(--bg1) !important;
+
+}
+
+.feature .icon-feature {
+max-width: 150px !important;
+margin-right: 16px !important;
+}
+.featurre p{
+    font-size: 10 !important;
+     margin-top: 16px !important;
+     margin-bottom: 16px !important;
+}
+
+/*SOCIAL ICONS*/
+
+
+.social-links a{
+    width: 32px;
+    height: 32px;
+    background-color: var(--bg2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.social-links a:hover{
+    background-color: var(--brand);
+    color: var(--bg1) !important;
+    border-radius: 10px;
+}
+.link-icon img{
+    width: 20px!important;
+}
+
+
+/*TEAM*/
+
+.team-members{
+    position: relative;
+}
+.team-members .social-links{
+    position: absolute;
+    top: 30px;
+    right: 30px !important;
+    transition: all 0.4s ease !important;
+    opacity: 0;
+}
+.team-members .social-links:hover{
+    opacity: 1;
+    bottom: 30px !important;
+}
+
+/*REVIEWS*/
+
+#reviews{
+    background-color: var(--bg1);
+}
+
+.review .icon{
+    width: 20px !important;
+    height: 20px;
+    display: flex !important;
+    justify-content: center !important;
+    background-color: var(--brand) !important;
+    color: var(--bg1)!important;
+    border-radius:100px !important;
+    border: 2px solid #FFAB76!important;
+    position: absolute!important;
+    
+}
+ 
+.review{
+    padding:32px ;
+    background-color: var(--bg2);
+    position: relative;
+}
+ .img img{
+    border-radius: 100px!important;
+    width: 60px !important;
+    
+}
+
+
+/*BLOG POST*/
+span{
+    font-weight: bold;
+    font-style: italic;
+    color: gold;
+    
+}
+#blog{
+    background-color: var(--bg2);
+}
+.blog-post{
+    position: relative;
+}
+.blog-post .date{
+
+width: 70px;
+height: 70px;
+background-color: var(--brand);
+text-align: center;
+display: flex;
+align-items: center;
+justify-content: center;
+position: absolute; 
+top: 20px;
+left: 20px;
+}
+
+.blog-post .day{
+    font-size: 32px;
+    line-height: 1;
+    font-family:"Dela Gothic One", 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--bg1);
+}
+
+.blog-post .year{
+    color: var(--bg1);
+}
+
+/*BOOKING*/
+#booking{
+       background: linear-gradient(to right,rgba(27, 31, 52, 0.8), rgba(27, 31, 52, 0.8)), url(../img/cover_2.jpg) ;
+    background-size:cover ;
+    background-position: center;
+}
+#booking form{
+    background-color: var(--bg1);
+    padding: 32px;
+}
+#booking form .form-control{
+    background-color: var(--bg2)!important;
+    border-radius: 0;
+    margin-top: 16px;
+    border-color:var(--bg2) ;
+    border: 2px solid var(--bg2);
+    color: var(--brand);
+}
+
+#booking form input{
+    height: 58px;
+}
+#booking form .form-control:focus{
+    box-shadow: none;
+    border-left: var(--brand)!important;
+}
+
+
+
+
+/*FOOTER*/
+
+footer{
+    padding-top: 160px;
+}
+.info div{
+    border-left: 1px solid var(--body);
+}
+footer .social-links{
+    display: flex;
+}
+
+footer .social-links{
+    display: flex;
+}
+.footer-top{
+    padding-bottom: 30px;
+}
+.footer-bottom{
+    padding-top: 30px;
+    padding-bottom: 30px;
+    border-top: 1px solid var(--bg1);
+}
+
+
+
+
+
+/* Forms, alerts and admin table tweaks for booking/auth pages */
+.dropdown-item{
+    background-color: #1B1F34;
+    color: #FFAB76;
+}
+.dropdown-item:hover{
+    background-color:#FFAB76 ;
+    color:#1B1F34;
+}
+.alert{
+    background: rgba(255, 171, 118, 0.12);
+    border: 1px solid rgba(255,171,118,0.25);
+    color: var(--brand);
+    padding: 12px 16px;
+    border-radius: 6px;
+}
+
+.table-responsive .table{
+    background: transparent;
+}
+
+.table thead th{
+    border-bottom: 2px solid rgba(255,255,255,0.06);
+    color: var(--brand);
+}
+
+.table tbody td{
+    vertical-align: middle;
+    color: var(--body);
+}
+
+form .form-control{
+    background-color: rgba(27,31,52,0.6);
+    border: 1px solid rgba(255,171,118,0.08);
+    color: var(--white);
+}
+
+form h2, form h3{ color: var(--brand); margin-bottom: 16px; }
+
+.btn-brand, .btn-outline-brand{
+    border-radius: 6px;
+    padding: 10px 18px;
+}
+
+/* smaller screens tweaks for forms */
+@media (max-width: 768px){
+    section{ padding-top: 80px; padding-bottom: 80px; }
+    .btn{ padding: 12px 20px; }
+}
+
+/* small helper for header links when logged in */
+.nav-user{
+    display:flex; gap:12px; align-items:center; color:var(--body);
+}
+
+
+
+
+
+
+

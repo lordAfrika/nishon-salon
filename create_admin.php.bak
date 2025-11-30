@@ -1,0 +1,388 @@
+<?php
+// create_admin.php - Protected admin creation page with strict authentication
+require_once __DIR__ . '/client.php';
+require_once __DIR__ . '/csrf.php';
+session_start();
+
+// Functions
+function has_any_admin() {
+    $pdo = db_connect();
+    $stmt = $pdo->query('SELECT COUNT(*) FROM users WHERE is_admin = 1');
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+// Initialize variables
+$auth_timeout = 300; // 5 minutes timeout
+$message = '';
+$message_type = 'info';
+$mode = 'login';
+
+// Initialize session variables if not set
+if (!isset($_SESSION['create_admin_auth_time'])) {
+    $_SESSION['create_admin_auth_time'] = 0;
+}
+
+// Check for session timeout
+if ($_SESSION['create_admin_auth_time'] < time() - $auth_timeout) {
+    unset($_SESSION['create_admin_auth']);
+    unset($_SESSION['create_admin_user_id']);
+}
+
+// CSRF protection for all POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !verify_csrf_token($_POST['csrf_token'] ?? '')) {
+    $message = 'Security check failed. Please try again.';
+    $message_type = 'error';
+    $mode = 'login';
+} else {
+    $has_admins = has_any_admin();
+    
+    // Handle POST actions
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'login':
+                $email = trim($_POST['email'] ?? '');
+                $pass = $_POST['password'] ?? '';
+                $res = verify_login($email, $pass);
+                
+                if ($res['success'] && $res['is_admin']) {
+                    $_SESSION['create_admin_auth'] = true;
+                    $_SESSION['create_admin_auth_time'] = time();
+                    $_SESSION['create_admin_user_id'] = $res['user_id'];
+                    session_regenerate_id(true);
+                    
+                    $mode = 'create';
+                    $message = 'Authenticated for admin creation page';
+                    $message_type = 'success';
+                } else {
+                    $message = $res['success'] ? 'Access denied: Admin privileges required' : 'Login failed: ' . $res['error'];
+                    $message_type = 'error';
+                    $mode = 'login';
+                }
+                break;
+
+            case 'create':
+                // Only process if properly authenticated or no admins exist
+                if (!$has_admins || (isset($_SESSION['create_admin_auth']) && 
+                    $_SESSION['create_admin_auth_time'] >= time() - $auth_timeout)) {
+                    
+                    $name = trim($_POST['full_name'] ?? '');
+                    $email = trim($_POST['email'] ?? '');
+                    $pass = $_POST['password'] ?? '';
+                    $confirm = $_POST['confirm_password'] ?? '';
+
+                    if ($name === '' || $email === '' || $pass === '' || $confirm === '') {
+                        $message = 'Please fill all fields';
+                        $message_type = 'error';
+                    } elseif ($pass !== $confirm) {
+                        $message = 'Passwords do not match';
+                        $message_type = 'error';
+                    } elseif (strlen($pass) < 8) {
+                        $message = 'Password must be at least 8 characters';
+                        $message_type = 'error';
+                    } else {
+                        $res = register_user($name, $email, '', $pass, 1);
+                        if ($res['success']) {
+                            $message = 'Admin created successfully.';
+                            $message_type = 'success';
+                            if (!$has_admins) {
+                                $_SESSION['create_admin_auth'] = true;
+                                $_SESSION['create_admin_auth_time'] = time();
+                                $_SESSION['create_admin_user_id'] = $res['user_id'];
+                                session_regenerate_id(true);
+                            }
+                        } else {
+                            $message = 'Error: ' . $res['error'];
+                            $message_type = 'error';
+                        }
+                    }
+                } else {
+                    $message = 'Authentication required';
+                    $message_type = 'error';
+                    $mode = 'login';
+                }
+                break;
+
+            case 'logout':
+                session_destroy();
+                header('Location: ' . $_SERVER['PHP_SELF']);
+                exit;
+        }
+    }
+    
+    // Determine page mode based on authentication status
+    if ($has_admins) {
+        if (!isset($_SESSION['create_admin_auth']) || 
+            $_SESSION['create_admin_auth_time'] < time() - $auth_timeout) {
+            $mode = 'login';
+            if (isset($_SESSION['create_admin_auth'])) {
+                $message = 'Session expired. Please login again.';
+                $message_type = 'info';
+                unset($_SESSION['create_admin_auth']);
+            }
+        } else {
+            $user = get_user_by_id($_SESSION['create_admin_user_id']);
+            if ($user && $user['is_admin']) {
+                $mode = 'create';
+            } else {
+                $mode = 'login';
+                $message = 'Invalid session. Please login again.';
+                $message_type = 'error';
+                unset($_SESSION['create_admin_auth']);
+            }
+        }
+    } else {
+        // No admins exist - allow creation of first admin
+        $mode = 'create';
+        $message = 'Create the first admin account';
+        $message_type = 'info';
+    }
+}
+session_start();
+
+// Special session variable for create_admin.php authentication
+if (!isset($_SESSION['create_admin_auth_time'])) {
+    $_SESSION['create_admin_auth_time'] = 0;
+}
+
+function has_any_admin() {
+    $pdo = db_connect();
+    $stmt = $pdo->query('SELECT COUNT(*) FROM users WHERE is_admin = 1');
+    return (int)$stmt->fetchColumn() > 0;
+}
+
+// Force re-authentication for create_admin.php
+$auth_timeout = 300; // 5 minutes timeout
+$current_time = time();
+if ($_SESSION['create_admin_auth_time'] < $current_time - $auth_timeout) {
+    unset($_SESSION['create_admin_auth']);
+}
+
+$message = '';
+$message_type = 'info';
+$mode = 'login'; // Always start with login mode
+
+// CSRF check for all POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $message = 'Security check failed. Please try again.';
+        $message_type = 'error';
+    }
+}
+
+// First check if there are any admins
+$has_admins = has_any_admin();
+
+// Strict access control logic - always require fresh login
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    if ($_POST['action'] === 'login' && verify_csrf_token($_POST['csrf_token'] ?? '')) {
+        $email = trim($_POST['email'] ?? '');
+        $pass = $_POST['password'] ?? '';
+        $res = verify_login($email, $pass);
+        
+        if ($res['success'] && $res['is_admin']) {
+            // Set special session variables for create_admin.php
+            $_SESSION['create_admin_auth'] = true;
+            $_SESSION['create_admin_auth_time'] = time();
+            $_SESSION['create_admin_user_id'] = $res['user_id'];
+            session_regenerate_id(true);
+            
+            $mode = 'create';
+            $message = 'Authenticated for admin creation page';
+            $message_type = 'success';
+        } else {
+            $message = $res['success'] ? 'Access denied: Admin privileges required' : 'Login failed: ' . $res['error'];
+            $message_type = 'error';
+            $mode = 'login';
+        }
+    }
+}
+
+// Check for valid authentication
+if ($has_admins) { // If there are admins, always require authentication
+    if (isset($_SESSION['create_admin_auth']) && $_SESSION['create_admin_auth_time'] >= time() - $auth_timeout) {
+        $user = get_user_by_id($_SESSION['create_admin_user_id']);
+        if ($user && $user['is_admin']) {
+            $mode = 'create';
+        } else {
+            $mode = 'login';
+            $message = 'Session expired or invalid. Please login again.';
+            $message_type = 'error';
+            unset($_SESSION['create_admin_auth']);
+        }
+    } else {
+        $mode = 'login';
+        if (isset($_SESSION['create_admin_auth'])) {
+            $message = 'Session expired. Please login again.';
+            $message_type = 'info';
+            unset($_SESSION['create_admin_auth']);
+        }
+    }
+} else {
+    // No admins exist yet - allow creation of first admin
+    $mode = 'create';
+    $message = 'Create the first admin account';
+    $message_type = 'info';
+}
+}
+
+// Handle admin creation (either first admin or by existing admin)
+if ($mode === 'create' && $_SERVER['REQUEST_METHOD'] === 'POST' 
+    && isset($_POST['action']) && $_POST['action'] === 'create' 
+    && verify_csrf_token($_POST['csrf_token'] ?? '')) {
+    
+    $name = trim($_POST['full_name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $pass = $_POST['password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
+
+    if ($name === '' || $email === '' || $pass === '' || $confirm === '') {
+        $message = 'Please fill all fields';
+        $message_type = 'error';
+    } elseif ($pass !== $confirm) {
+        $message = 'Passwords do not match';
+        $message_type = 'error';
+    } elseif (strlen($pass) < 8) {
+        $message = 'Password must be at least 8 characters';
+        $message_type = 'error';
+    } else {
+        $res = register_user($name, $email, '', $pass, 1);
+        if ($res['success']) {
+            $message = 'Admin created successfully. ' . (!has_any_admin() ? 'You are now logged in as admin.' : '');
+            $message_type = 'success';
+            if (!has_any_admin()) { // Was first admin
+                $_SESSION['user_id'] = $res['user_id'];
+                $_SESSION['is_admin'] = true;
+                session_regenerate_id(true);
+            }
+        } else {
+            $message = 'Error: ' . $res['error'];
+            $message_type = 'error';
+        }
+    }
+}
+
+// Handle logout
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'logout' 
+    && verify_csrf_token($_POST['csrf_token'] ?? '')) {
+    session_destroy();
+    header('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
+}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <title><?php echo $mode === 'create' ? 'Create Admin' : ($mode === 'login' ? 'Admin Login' : 'Access Denied'); ?></title>
+    <style>
+        .alert-error { background: rgba(220,53,69,0.1); border-color: rgba(220,53,69,0.25); color: #dc3545; }
+        .alert-success { background: rgba(25,135,84,0.1); border-color: rgba(25,135,84,0.25); color: #198754; }
+    </style>
+</head>
+<body class="p-4 bg-dark text-white">
+    <div class="container">
+        <h1><?php echo $mode === 'create' ? 'Create Admin Account' : ($mode === 'login' ? 'Admin Login Required' : 'Access Denied'); ?></h1>
+        
+        <?php if ($message): ?>
+            <div class="alert alert-<?php echo $message_type; ?>"><?php echo htmlspecialchars($message); ?></div>
+        <?php endif; ?>
+
+        <?php if ($mode === 'create'): ?>
+            <?php if (!has_any_admin()): ?>
+                <div class="alert">No admin accounts exist. Create the first admin account below:</div>
+            <?php endif; ?>
+
+            <form method="post" style="max-width:480px" onsubmit="return validateForm(this);">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="action" value="create">
+                <div class="mb-3">
+                    <label class="form-label">Full Name</label>
+                    <input name="full_name" class="form-control" required 
+                           minlength="2" maxlength="150" pattern="[A-Za-z0-9\s\-'.]+" 
+                           title="Name can contain letters, numbers, spaces, hyphens and periods">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input name="email" type="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input name="password" type="password" class="form-control" required 
+                           minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}"
+                           title="Password must be at least 8 characters and include uppercase, lowercase and numbers">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Confirm Password</label>
+                    <input name="confirm_password" type="password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-brand">Create Admin Account</button>
+                    <?php if (isset($_SESSION['is_admin'])): ?>
+                        <a href="database.php" class="btn btn-outline-brand ms-2">Back to Admin Panel</a>
+                    <?php endif; ?>
+                </div>
+            </form>
+
+        <?php elseif ($mode === 'login'): ?>
+            <form method="post" style="max-width:480px">
+                <?php echo csrf_field(); ?>
+                <input type="hidden" name="action" value="login">
+                <div class="mb-3">
+                    <label class="form-label">Admin Email</label>
+                    <input name="email" type="email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input name="password" type="password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-brand">Login</button>
+                    <a href="index.php" class="btn btn-outline-brand ms-2">Back to Site</a>
+                </div>
+            </form>
+
+        <?php else: ?>
+            <div class="alert alert-error">
+                You do not have permission to access this page. Please log in as an administrator.
+            </div>
+            <p>
+                <a href="index.php" class="btn btn-outline-brand">Back to Site</a>
+                <?php if (isset($_SESSION['user_id'])): ?>
+                    <form method="post" style="display:inline-block">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="action" value="logout">
+                        <button type="submit" class="btn btn-outline-brand ms-2">Logout</button>
+                    </form>
+                <?php endif; ?>
+            </p>
+        <?php endif; ?>
+    </div>
+
+    <script>
+    function validateForm(form) {
+        const pass = form.password.value;
+        const confirm = form.confirm_password.value;
+        
+        if (pass !== confirm) {
+            alert('Passwords do not match');
+            return false;
+        }
+        
+        if (pass.length < 8) {
+            alert('Password must be at least 8 characters');
+            return false;
+        }
+        
+        if (!/[A-Z]/.test(pass) || !/[a-z]/.test(pass) || !/[0-9]/.test(pass)) {
+            alert('Password must include uppercase, lowercase and numbers');
+            return false;
+        }
+        
+        return true;
+    }
+    </script>
+</body>
+</html>

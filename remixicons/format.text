@@ -1,0 +1,19 @@
+1,create a sql data base format in the format.sql where a user can create an account or login if already have an account and the user can use their account 
+to book and edit appointment at Nishon salon with their full name, phone number and date  and can also send message,
+ check the booking format so you will understand. and only five clients can be able to pick same hour at same day, if it exceeds, alert please pick another time
+ and and working hour should be 9am - 11pm after or before that no clients can book an appointment, so i can import in my php.
+
+
+2,create the  database structure in database.php with useable interface for admin only to edit or delete clients infomations
+3,use the client.php create tables to store all clients data/infomation according to time/date of booking in sequences,
+4,in the booking format in index.php make users able to edit thier bookings name,phone,date,message
+5, create a regstration and login form for users let admins be able to use the login form to access the database.php and client.php via navigation after login
+6,let the regstration or login form be the part the home page.
+7,use css styling with colors and fonts available in the css.style, do all styling in css.style the comments.
+
+tell me what you understand and what you dont. or what your opinion
+
+
+
+
+is it posible the create a market place app where users can create acconts and pay money for ads and the app will automatically post users videos on the platform and other social media platforms with a sponsored app, that is for instance, let say the app name is shoplift and shoplift have afliation with tiktok and shoplift provides a market place for users to make sales on the app and also help the users to adertise thier product by automatically posting their products videos with automatic/programmed captions and video edit on tiktiok via the platforms tiktok account and the persons titok accounts aas part of the automatic caption for the the tiktok AD.
