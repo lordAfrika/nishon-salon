@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: nishon-salon
+    env: php
+    plan: free
+    buildCommand: "composer install --no-dev"
+    startCommand: "php -S 0.0.0.0:10000"
+    envVars:
+      - key: PORT
+        value: 10000
