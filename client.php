@@ -11,7 +11,7 @@ function db_connect(){
     $user = getenv('DB_USER') ?: 'root';
     $pass = getenv('DB_PASS') ?: '';
     $charset = 'utf8mb4';
-    $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+    $dsn = "pgsql:host=$host;port=5432;dbname=$db";
     $opts = [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
